@@ -60,7 +60,7 @@ dans **`docs/chantiers/DECKLINK.md`** du dépôt principal.
 
 ## Configuration
 
-Le manifeste porte cinq clés (`config_schema`), dont trois cachées. Ce qui compte :
+Deux clés se règlent au déploiement, `inputs` et `outputs` :
 
 ```json
 {
@@ -91,6 +91,18 @@ Le manifeste porte cinq clés (`config_schema`), dont trois cachées. Ce qui com
 relance **que** les connecteurs dont la ligne de commande change — une prise d'antenne n'est pas
 coupée parce qu'on en règle une autre. Refus 409 si la version du plugin ou le nom d'hôte
 diffèrent (garde `verif_reconfig_a_chaud.py`).
+
+
+Les trois autres ne figurent pas dans le formulaire, et chacune pour une raison précise :
+
+| clé | pourquoi |
+|---|---|
+| `missing_frame_mode` | le réglage qui compte est **global** : Réglages → MXL. Deux endroits pour un même choix se contredisent un jour |
+| `binary` | chemin du binaire natif dans l'image. Une dérogation de mise au point, pas un réglage d'exploitation |
+| `layouts` | dispositions écrites par l'interface. Personne ne les saisit à la main |
+
+Elles restent lisibles et modifiables par l'API comme les autres : `hidden` ne cache rien, il
+retire un champ d'un formulaire.
 
 ## Câblage
 
