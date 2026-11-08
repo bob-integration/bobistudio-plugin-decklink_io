@@ -1,0 +1,267 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later — console du plugin decklink_io. -->
+<div class="dl-panneau">
+
+  <!-- ── PILOTE ABSENT ───────────────────────────────────────────────────────────────────
+       ★★ EN TÊTE DE PAGE, DÉPLIÉ, EN ROUGE (demandé par Cyril le 30/10 après la réinstallation
+          de la Z8). Le pilote Desktop Video manquait : les deux Quad 2 étaient bien sur le bus
+          PCI, le conteneur a été créé puis a DISPARU du nœud en 4 s, et rien sur cette page ne
+          disait que le pilote n'était pas là. Le dépôt de l'archive existait déjà, mais replié
+          sous « Installation de la carte » — il ne l'a trouvé qu'après qu'on le lui ait dit.
+       ⚠ CE BANDEAU N'EST PAS UN RÉGLAGE RARE, c'est un état BLOQUANT : sans pilote, aucune
+         carte ne s'ouvre, donc aucune des deux listes de la page ne peut rien contenir. Le repli
+         est la bonne place pour une mise à jour de micrologiciel (coupure d'alimentation, geste
+         rare) ; il est la MAUVAISE place pour « rien ne marchera tant que ceci manque ».
+       ⚠ Et il porte le dépôt LUI-MÊME, pas un lien vers le dépôt replié : ouvrir un repli est
+         exactement le geste qu'on vient de constater introuvable. -->
+  <section class="alert alert-error dl-pilote" data-dl="bloc-pilote" role="alert" hidden>
+    <h4 class="dl-pilote-titre" data-dl="pilote-titre"></h4>
+    <p class="dl-pilote-quoi" data-dl="pilote-quoi"></p>
+    <!-- La phrase du pilote hôte lui-même (catalogue central) : elle nomme le cas exact,
+         par exemple « il manque dkms et les en-têtes du noyau ». On la montre ICI en plus du
+         bloc replié, sinon elle n'est lisible qu'à l'endroit qu'on vient de juger introuvable. -->
+    <p class="dl-pilote-plan" data-dl="pilote-plan" hidden></p>
+    <label class="dl-champ dl-pilote-depot" data-dl="bloc-depot-haut" hidden>
+      <span data-dl="lbl-depot-haut"></span>
+      <input type="file" class="ctl-input" data-dl="depot-haut" accept=".tar.gz,.tgz,.tar,.deb">
+    </label>
+    <p class="dl-note dl-pilote-ou" data-dl="pilote-ou"></p>
+    <p class="dl-note dl-pilote-reglages" data-dl="pilote-reglages"></p>
+    <div class="dl-actions">
+      <button type="button" class="btn btn-blue" data-dl="pilote-installer" hidden></button>
+    </div>
+    <!-- La SUITE, annoncée d'avance : déposer ne suffit pas, et le redémarrage du nœud n'est
+         pas devinable — les modules du noyau ne se chargent qu'au démarrage suivant. -->
+    <ol class="dl-pilote-suite" data-dl="pilote-suite"></ol>
+    <pre class="dl-journal" data-dl="pilote-journal" hidden></pre>
+  </section>
+
+  <!-- ── CONTENEUR INJOIGNABLE ───────────────────────────────────────────────────────────
+       ★★ « REDÉPLOIEMENT EN COURS » SANS FIN (mesuré sur la Z8 le 30/10 à 15:15, Cyril est
+          resté devant). La page lit tout 502/503/504/404 comme un redéploiement, parce que
+          c'est bien ce que rend le relais pendant les ~20 s où le conteneur redémarre. Mais un
+          conteneur ABSENT rend la même chose POUR TOUJOURS : #228 était mort 4 s après sa
+          création faute de pilote, et la page a continué d'annoncer que l'affichage revenait
+          « dans quelques secondes ».
+       ⚠ Le défaut de fond n'est pas le message : c'est qu'une attente sans PLAFOND cesse d'être
+         une information. Passé le plafond, on dit l'état RÉEL du conteneur et on offre de le
+         démarrer — la seule chose qui le fera repartir, puisque rien ne le relèvera tout seul. -->
+  <div class="alert alert-warning dl-conteneur" data-dl="bloc-conteneur" role="status"
+       aria-live="polite" hidden>
+    <p class="dl-conteneur-texte" data-dl="conteneur-texte"></p>
+    <div class="dl-actions">
+      <button type="button" class="btn btn-blue" data-dl="conteneur-demarrer" hidden></button>
+    </div>
+  </div>
+
+  <section class="dl-carte">
+    <header class="dl-titre">
+      <span class="dl-modele" data-dl="modele">carte…</span>
+      <span class="dl-profil" data-dl="profil"></span>
+    </header>
+
+    <!-- Le BANDEAU. Rien n'est étiqueté sur une DeckLink : ce dessin est le seul endroit où
+         l'exploitant voit à quoi correspond chaque prise. L'ordre est celui de la carte, et il
+         est annoncé comme NON VÉRIFIÉ tant que personne ne l'a confirmé — cf. l'aide. -->
+    <div class="dl-bandeau" data-dl="bandeau" role="group" aria-label="Connecteurs de la carte"></div>
+
+    <!-- ── LÉGENDE DES COULEURS (demandée par Cyril le 30/10) ───────────────────────────
+         Rien n'est étiqueté sur une DeckLink, et la page code six choses par la couleur : le
+         ruban était donc lisible pour qui l'avait écrit, et pour personne d'autre.
+         ★★ LES PASTILLES SONT DE VRAIES PRISES, pas des carrés coloriés à la main : même
+            `.dl-prise`, mêmes `data-role`/`data-signal` que le ruban, donc les mêmes règles
+            CSS. Une légende dont les couleurs sont recopiées se périme au premier changement
+            de charte, et ment alors sur ce qu'elle prétend expliquer — ce serait pire que pas
+            de légende du tout.
+         ★ LE CONTOUR ET LE HALO SONT DEUX CHOSES DIFFÉRENTES, et c'est le point que la
+           légende doit porter : le contour dit le RÔLE (ce qu'on a affecté), le halo vert dit
+           le SIGNAL (ce que la carte constate). Les deux sont verts dans des cas voisins —
+           contour vert = découpe, halo vert = signal présent — et c'est exactement là qu'un
+           lecteur se trompe. -->
+    <ul class="dl-legende" data-dl="legende" aria-label="Légende des couleurs"></ul>
+
+    <!-- ★ L'AVIS DE REDÉPLOIEMENT EST ICI, SOUS LES PRISES (21/10, demandé en recette). Il
+         s'écrivait dans la ligne d'erreur, tout en bas du panneau, en petit texte rouge : sous
+         le bloc micrologiciel, personne ne le voyait, et une attente normale y prenait la
+         couleur d'une panne. C'est l'alerte « info » de la charte (base.css). -->
+    <div class="alert alert-info dl-attente" data-dl="attente" role="status" aria-live="polite" hidden></div>
+
+    <!-- ⚠ Message de niveau BANDEAU. Il doit vivre ICI, hors de l'éditeur : un refus de clic
+         écrit dans un bloc masqué ne s'affiche jamais, et le clic passe pour mort. -->
+    <p class="dl-message" data-dl="message" hidden></p>
+
+    <!-- Changements en LOT (07/11) : les cœurs de la carte suivent ses prises actives, donc
+         appliquer recrée le conteneur. On prépare plusieurs prises, on voit ce que ça coûte en
+         cœurs, et on applique UNE fois. Absent en mode public (rien n'y est câblé). -->
+    <section class="dl-lot" data-dl="lot" role="status" aria-live="polite" hidden>
+      <p class="dl-lot-resume" data-dl="lot-resume"></p>
+      <p class="dl-lot-note" data-dl="lot-note" hidden></p>
+      <div class="dl-actions">
+        <button type="button" class="btn btn-blue" data-dl="lot-appliquer"></button>
+        <button type="button" class="btn" data-dl="lot-abandonner"></button>
+      </div>
+    </section>
+
+    <!-- Éditeur : ouvert en cliquant une prise. Absent en mode public (lecture seule).
+         ★ IL EST JUSTE SOUS LE BANDEAU, ET C'EST DÉLIBÉRÉ (19/10). Il s'ouvrait sous le bloc
+           Profil, donc à plusieurs centaines de pixels du geste : l'exploitant cliquait une
+           prise, le panneau s'ouvrait hors de son regard, et le clic passait pour mort — deux
+           témoins indépendants l'ont rapporté comme « on ne peut pas cliquer sur un connecteur ».
+         ⚠ Pourquoi pas un panneau FLOTTANT ancré sur la prise : le bandeau défile horizontalement
+           (`overflow-x: auto`), donc tout élément positionné dedans est ROGNÉ — invisible avec 4
+           prises, certain avec 8. -->
+    <section class="dl-editeur" data-dl="editeur" hidden>
+      <h4 class="dl-sous-titre" data-dl="edit-titre"></h4>
+      <div class="dl-champs">
+        <label class="dl-champ">
+          <span data-dl="lbl-role">Rôle</span>
+          <select class="ctl-input" data-dl="role">
+            <option value="libre">libre</option>
+            <option value="entree">Entrée SDI</option>
+            <option value="sortie">Sortie SDI</option>
+          </select>
+        </label>
+        <!-- ENTRÉE : le nom du flux est une IDENTITÉ que nous produisons, dérivée par convention.
+             Le laisser saisir invite la faute de frappe, qui casse en silence tout ce qui s'y
+             réfère (câblage, monitoring, et l'UUID NMOS qui en dérive). On l'AFFICHE. -->
+        <div class="dl-champ" data-dl="bloc-flux-fixe">
+          <span data-dl="lbl-flux-fixe">Flux produit</span>
+          <output class="dl-fixe" data-dl="flux-fixe"></output>
+        </div>
+        <!-- SORTIE : quel flux rejouer.
+             ★ REMIS APRÈS AVOIR ÉTÉ RETIRÉ LE MÊME JOUR, et la raison mérite d'être écrite.
+               Je l'avais supprimé en pensant que la page Câbles prenait le relais — le
+               manifeste déclare bien `consumes` sur `outputs.flow`. MAIS la page Câbles REFUSE
+               ce plugin : « decklink_io n'est pas câblable depuis la home (mode redeploy) »,
+               HTTP 400, reproduit. Câbler ici impose un redéploiement, que la home ne fait
+               pas ; notre bouton « Appliquer et redéployer », lui, le fait. Retirer une
+               capacité parce qu'on SUPPOSE qu'elle existe ailleurs est une régression, pas une
+               simplification : le testeur s'est retrouvé sans aucun moyen d'affecter une
+               source à une sortie SDI.
+             ⚠ Le jour où la home acceptera le mode `redeploy`, ce champ devra repartir — mais
+               alors pour de vrai, vérification à l'appui. -->
+        <!-- SORTIE : le flux émis est AFFICHÉ, jamais choisi ici (22/10, demandé par le
+             testeur). C'était un menu, et il écrasait le câblage : la console renvoyait sa
+             propre valeur de `flow` à chaque application, donc régler un format depuis ici
+             reposait le flux du menu par-dessus celui que la page Câbles avait posé. Deux
+             écrivains pour une même donnée, et c'est le second qui gagnait, en silence.
+             « Toute la gestion des flux se déroule dans la page Câbles » — on l'affiche donc,
+             exactement comme le flux produit d'une entrée juste au-dessus. -->
+        <div class="dl-champ" data-dl="bloc-flux-sel">
+          <span data-dl="lbl-flux-sel">Flux émis</span>
+          <output class="dl-fixe" data-dl="flux-sortie"></output>
+        </div>
+        <label class="dl-champ" data-dl="bloc-audio">
+          <span data-dl="lbl-audio">Audio</span>
+          <select class="ctl-input" data-dl="audio">
+            <option value="0">aucun</option>
+            <option value="2">2 canaux</option>
+            <option value="8">8 canaux</option>
+            <option value="16">16 canaux</option>
+          </select>
+        </label>
+        <!-- Audio d'une SORTIE : c'est le nombre de canaux OUVERTS sur la carte, et il décide
+             du nombre de ports de câblage (16 = deux flux de 8). Les libellés sont posés par
+             le script, donc traduits : les écrire ici les figerait en français. -->
+        <label class="dl-champ" data-dl="bloc-audio-sortie">
+          <span data-dl="lbl-audio-sortie"></span>
+          <select class="ctl-input" data-dl="audio-sortie"></select>
+        </label>
+        <label class="dl-champ dl-case" data-dl="bloc-anc">
+          <input type="checkbox" data-dl="anc">
+          <span data-dl="lbl-anc">ANC (timecode)</span>
+        </label>
+        <!-- Format OBLIGATOIRE et CHOISI (décision du 16/10) : pas de valeur par défaut. Les
+             modes viennent de la carte elle-même ; un champ libre obligatoire aurait seulement
+             déplacé la faute de frappe au déploiement. -->
+        <label class="dl-champ" data-dl="bloc-mode">
+          <span data-dl="lbl-mode">Format</span>
+          <select class="ctl-input" data-dl="mode"></select>
+        </label>
+        <!-- Pré-charge : LE levier de latence. Mesuré sur la carte : 120 ms de socle + 40 ms par
+             trame. On l'affiche avec son effet, pas comme un nombre nu — « 2 » ne dit rien, « 2
+             (≈ 200 ms) » dit ce qu'on achète. -->
+        <label class="dl-champ" data-dl="bloc-preroll">
+          <span data-dl="lbl-preroll">Pré-charge</span>
+          <select class="ctl-input" data-dl="preroll"></select>
+        </label>
+        <!-- Attente des tranches : le levier de JUSTESSE, à ne pas confondre avec la pré-charge
+             qui est celui de LATENCE. Combien de temps la sortie laisse au producteur pour finir
+             son image avant de retomber sur la précédente. Trop court → une image répétée puis
+             une sautée, à cadence parfaite (PGM de la Z8, 28/10). -->
+        <label class="dl-champ" data-dl="bloc-slice-wait">
+          <span data-dl="lbl-slice-wait">Attente des tranches</span>
+          <select class="ctl-input" data-dl="slice-wait"></select>
+        </label>
+        <!-- Fill & Key : la DÉCOUPE est un second connecteur de la même sortie, pas une sortie
+             indépendante — format et pré-charge sont partagés par construction. -->
+        <label class="dl-champ" data-dl="bloc-key">
+          <span data-dl="lbl-key">Découpe (Fill &amp; Key)</span>
+          <select class="ctl-input" data-dl="key-pid"></select>
+        </label>
+        <label class="dl-champ" data-dl="bloc-key-flow">
+          <span data-dl="lbl-key-flow">Flux de découpe</span>
+          <select class="ctl-input" data-dl="key-flow"></select>
+        </label>
+      </div>
+      <p class="dl-note" data-dl="note"></p>
+      <div class="dl-actions">
+        <button type="button" class="btn btn-blue" data-dl="appliquer"></button>
+        <button type="button" class="btn" data-dl="annuler"></button>
+      </div>
+    </section>
+
+    <!-- L'avertissement sur l'ORDRE des prises vient APRÈS le menu, pas entre les deux. Placé
+         juste sous le bandeau, il repoussait le menu de plusieurs lignes : la flèche pointait
+         dans le vide et le menu paraissait de nouveau « loin du connecteur », ce qu'on venait
+         justement de corriger. Il reste visible, il n'est simplement plus sur le chemin. -->
+    <p class="dl-avertissement" data-dl="avert" hidden></p>
+  </section>
+
+  <!-- ── INSTALLATION ─────────────────────────────────────────────────────────────────
+       Le profil n'est plus un réglage d'exploitation : la carte est mise d'office dans celui
+       qui rend toutes les prises indépendantes, et l'exploitant n'a rien à y choisir. Mais la
+       CAPACITÉ doit rester atteignable — une carte peut arriver d'ailleurs dans un autre
+       profil, et nous n'avons jamais vu de Quad 2. Replié, donc : présent sans être à portée
+       de clic, comme tout réglage rare et coûteux. -->
+  <details class="dl-installation" data-dl="bloc-installation" hidden>
+    <summary data-dl="lbl-installation">Installation de la carte</summary>
+  <!-- ── MICROLOGICIEL ────────────────────────────────────────────────────────────────
+       ★ ICI, ET PAS DANS LES RÉGLAGES DU NŒUD (demandé le 20/10). Celui qui constate qu'une
+         carte manque regarde CETTE page, pas la fiche de la machine. Deux fois une DeckLink
+         au micrologiciel périmé est restée invisible — le noyau l'active, le SDK refuse de
+         l'énumérer — et les deux fois il a fallu quelqu'un avec un shell.
+       ⚠ Replié avec le reste de l'installation : une mise à jour de micrologiciel exige une
+         COUPURE D'ALIMENTATION de la machine. Ça ne se met pas à portée de clic.
+       ⚠ Et on ne met PAS ici le bouton qui éteint le serveur. Mettre à jour une carte est un
+         geste de carte ; éteindre une machine est un geste de machine, et il reste sur la
+         fiche du nœud. Dupliquer un arrêt complet dans deux pages, c'est la façon dont on
+         éteint un serveur qu'on ne voulait pas éteindre. -->
+  <section class="dl-firmware" data-dl="bloc-firmware" hidden>
+    <h4 class="dl-sous-titre" data-dl="lbl-firmware">Micrologiciel des cartes</h4>
+    <div class="dl-liste" data-dl="firmware-cartes"></div>
+    <p class="dl-note" data-dl="firmware-etat"></p>
+    <!-- Dépôt de l'archive : visible SEULEMENT quand le pilote manque. Le nœud peut n'avoir
+         aucun accès sortant, et l'archive passe de toute façon par une page de leur site (un
+         formulaire d'enregistrement, avec un « Télécharger uniquement » qui suffit — ni compte
+         ni contrat, contrairement à ce qui était écrit ici jusqu'au 2026-10-31). C'est donc
+         l'exploitant qui apporte le fichier, et l'installation se fait ensuite hors ligne. -->
+    <label class="dl-champ" data-dl="bloc-depot" hidden>
+      <span data-dl="lbl-depot">Déposer l'archive Blackmagic</span>
+      <input type="file" class="ctl-input" data-dl="depot" accept=".tar.gz,.tgz,.tar,.deb">
+    </label>
+    <div class="dl-actions">
+      <button type="button" class="btn btn-blue" data-dl="firmware-maj" hidden></button>
+    </div>
+    <pre class="dl-journal" data-dl="firmware-journal" hidden></pre>
+  </section>
+
+  <section class="dl-profil-bloc" data-dl="bloc-profil" hidden>
+    <h4 class="dl-sous-titre" data-dl="lbl-profils">Profil de la carte</h4>
+    <div class="dl-liste" data-dl="profils"></div>
+    <p class="dl-note" data-dl="profil-note"></p>
+  </section>
+
+  </details>
+
+  <p class="dl-erreur" data-dl="erreur" hidden></p>
+</div>

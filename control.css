@@ -1,0 +1,338 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later — console du plugin decklink_io. */
+
+.dl-panneau { display: flex; flex-direction: column; gap: 18px; }
+.dl-titre { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.dl-modele { font-weight: 600; }
+.dl-profil { opacity: .7; font-size: .9em; }
+.dl-sous-titre { margin: 0 0 8px; font-size: .95em; opacity: .8; }
+
+/* ── Le bandeau ────────────────────────────────────────────────────────────────────────
+   Une équerre de carte vue de l'arrière : un rail, et les prises dessus. Les couleurs
+   disent le RÔLE ; la forme dit la nature (BNC rond). Un connecteur inactif est barré —
+   il ne suffit pas de le griser : gris se lit « pas encore configuré », barré se lit
+   « éteint », et c'est la distinction qui nous a coûté une demi-journée sur le banc. */
+/* Le bandeau empile maintenant UN RUBAN PAR CARTE (20/10). Le cadre et le défilement
+   horizontal descendent donc d'un cran : ils appartiennent au ruban d'une carte, pas à la pile.
+   Les garder sur la pile aurait fait défiler les deux cartes ensemble — on ne peut alors plus
+   lire la fin de l'une sans perdre le début de l'autre. */
+.dl-bandeau { display: flex; flex-direction: column; gap: 10px; }
+/* ★ CHAQUE CARTE EST UN CADRE, pas un titre suivi d'un ruban (20/10). Sans bordure, deux
+   cartes empilées se lisaient comme une seule longue liste — et comme l'en-tête du panneau
+   portait le modèle de la première, les douze prises semblaient lui appartenir. */
+.dl-carte-bloc {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--bordure, rgba(127,127,127,.35));
+  background: var(--fond-carte, rgba(127,127,127,.05));
+}
+.dl-carte-titre {
+  margin: 0; font-size: .82rem; font-weight: 600; letter-spacing: .02em;
+  opacity: .75; text-transform: uppercase;
+}
+.dl-bandeau-carte {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: 8px;
+  background: var(--fond-enfonce, rgba(127,127,127,.12));
+  border: 1px solid var(--bordure, rgba(127,127,127,.28));
+  overflow-x: auto;
+}
+.dl-prise { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 72px; }
+.dl-bnc {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--bordure, rgba(127,127,127,.5));
+  background: radial-gradient(circle at 50% 50%,
+              var(--fond, #1b1b1b) 0 34%, var(--bordure, rgba(127,127,127,.45)) 35% 100%);
+  position: relative; display: grid; place-items: center;
+}
+.dl-bnc-num { font-size: .72em; opacity: .85; }
+.dl-etiq { font-size: .78em; text-align: center; line-height: 1.25; }
+.dl-role { font-size: .72em; opacity: .75; }
+
+.dl-prise[data-role="entree"]  .dl-bnc { border-color: var(--accent-entree, #4a9edd); }
+.dl-prise[data-role="sortie"]  .dl-bnc { border-color: var(--accent-sortie, #d59b3c); }
+.dl-prise[data-role="ref"]     .dl-bnc { border-color: var(--accent-ref, #8d7ad6); }
+.dl-prise[data-role="inactif"] .dl-bnc { opacity: .45; }
+.dl-prise[data-role="inactif"] .dl-bnc::after {
+  content: ""; position: absolute; inset: -4px auto -4px 50%;
+  width: 2px; background: currentColor; transform: rotate(45deg); opacity: .8;
+}
+/* Signal présent : un témoin, pas une animation — une pastille qui clignote sur une page de
+   diagnostic finit par être ignorée, et c'est précisément ce qu'on ne veut pas ici. */
+.dl-prise[data-signal="1"] .dl-bnc { box-shadow: 0 0 0 3px var(--accent-ok, rgba(80,190,120,.45)); }
+
+.dl-avertissement, .dl-erreur { margin: 10px 0 0; font-size: .85em; }
+.dl-avertissement { opacity: .75; }
+.dl-erreur { color: var(--accent-erreur, #d86b6b); }
+
+/* ── La liste ─────────────────────────────────────────────────────────────────────────── */
+.dl-liste { display: flex; flex-direction: column; gap: 6px; }
+.dl-ligne {
+  display: grid; grid-template-columns: 2.2fr 1fr 1fr 1.4fr; gap: 10px;
+  align-items: center; padding: 8px 10px; border-radius: 6px;
+  background: var(--fond-enfonce, rgba(127,127,127,.08));
+}
+.dl-ligne .dl-id { font-family: ui-monospace, monospace; font-size: .8em; opacity: .65; }
+.dl-ligne .dl-mesure { font-variant-numeric: tabular-nums; font-size: .85em; }
+
+/* ── L'éditeur ─────────────────────────────────────────────────────────────────────────
+   Il s'ouvre sous le bandeau, au clic sur une prise. Pas de fenêtre modale : on veut garder
+   le dessin visible pendant qu'on décide, puisque c'est lui qui situe la prise. */
+.dl-editeur {
+  padding: 14px 16px; border-radius: 8px;
+  background: var(--fond-enfonce, rgba(127,127,127,.10));
+  border: 1px solid var(--bordure, rgba(127,127,127,.28));
+}
+.dl-champs { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.dl-champ { display: flex; flex-direction: column; gap: 4px; font-size: .85em; }
+.dl-champ.dl-case { flex-direction: row; align-items: center; gap: 6px; }
+.dl-note { margin: 10px 0 0; font-size: .82em; opacity: .75; }
+.dl-actions { display: flex; gap: 8px; margin-top: 12px; }
+.dl-prise { cursor: pointer; }
+.dl-prise[data-role="inactif"] { cursor: not-allowed; }
+.dl-prise[data-choisie="1"] .dl-bnc { outline: 2px solid var(--accent, #6ba4d8); outline-offset: 3px; }
+.dl-fixe { font-family: ui-monospace, monospace; font-size: .9em; padding: 4px 0; opacity: .85; }
+
+/* Message de bandeau : visible sans ouvrir l'éditeur, sinon un refus de clic reste muet. */
+.dl-message {
+  margin: 10px 0 0; padding: 8px 10px; border-radius: 6px; font-size: .85em;
+  background: var(--fond-enfonce, rgba(127,127,127,.14));
+  border-left: 3px solid var(--accent, #6ba4d8);
+}
+/* Lot de changements : même famille que le message de bandeau, accent plus marqué — c'est une
+   décision en attente, pas une information. */
+.dl-lot {
+  margin: 10px 0 0; padding: 10px 12px; border-radius: 6px;
+  background: var(--fond-enfonce, rgba(127,127,127,.14));
+  border-left: 3px solid var(--accent, #6ba4d8);
+}
+.dl-lot-resume { margin: 0; font-weight: 600; }
+.dl-lot-note { margin: 6px 0 0; font-size: .85em; }
+.dl-prise[data-role="decoupe"] .dl-bnc { border-color: var(--accent-decoupe, #6fbf8f); }
+
+/* ── Profil ───────────────────────────────────────────────────────────────────────────── */
+.dl-profil-bloc {
+  padding: 14px 16px; border-radius: 8px;
+  background: var(--fond-enfonce, rgba(127,127,127,.10));
+  border: 1px solid var(--bordure, rgba(127,127,127,.28));
+}
+.dl-profil-ligne {
+  display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+  padding: 10px 12px; border-radius: 6px;
+  background: var(--fond-enfonce, rgba(127,127,127,.08));
+}
+.dl-profil-ligne[data-actif="1"] { outline: 2px solid var(--accent, #6ba4d8); }
+.dl-profil-ligne .dl-sous { font-size: .82em; opacity: .75; }
+/* Au doigt : 44 px est le minimum confortable sur iPad. */
+.dl-profil-ligne button { min-height: 44px; padding: 0 16px; }
+.dl-prise { min-width: 72px; padding: 6px 4px; }
+.dl-bnc { width: 40px; height: 40px; }
+
+/* La mesure portée par la PRISE elle-même (19/10). Elle vivait dans un tableau séparé qui
+   répétait le bandeau ; le tableau a disparu. Taille réduite et largeur bornée : c'est une
+   précision sous l'étiquette, elle ne doit pas élargir la prise ni la faire sauter d'une
+   lecture à l'autre — « 1920×1080 · 50.02 i/s » et « aucun signal » n'ont pas la même longueur. */
+.dl-mesure-prise {
+  font-size: 11px; line-height: 1.25; opacity: .72; text-align: center;
+  max-width: 96px; min-height: 2.5em; overflow-wrap: anywhere;
+}
+.dl-prise[data-signal="0"] .dl-mesure-prise { opacity: .5; }
+
+/* Repli « installation » : présent, atteignable, mais pas à portée de clic. Le profil n'est plus
+   un réglage d'exploitation — la carte est normalisée d'office — et un réglage rare et coûteux
+   ne doit pas se présenter comme une case flatteuse à côté des réglages courants. */
+.dl-installation { margin-top: 14px; border-top: 1px solid var(--bordure, rgba(127,127,127,.28));
+                   padding-top: 10px; }
+.dl-installation > summary { cursor: pointer; font-size: .86em; opacity: .8;
+                             padding: 10px 4px; min-height: 44px; display: flex;
+                             align-items: center; }
+.dl-installation > summary::marker { opacity: .6; }
+
+/* ── Le menu d'une prise ───────────────────────────────────────────────────────────────────
+   Il s'ouvre JUSTE sous le bandeau, avec une flèche pointant la prise cliquée : c'est ce qui
+   le rattache au geste. Il vivait plus bas, après le bloc Profil, et deux témoins ont rapporté
+   « on ne peut pas cliquer sur un connecteur » — le panneau s'ouvrait hors de leur regard.
+   La flèche est posée en pixels par le JS (--dl-fleche) ; sans mise en page, elle reste à
+   gauche et le menu fonctionne quand même. */
+.dl-editeur { position: relative; margin-top: 10px; }
+.dl-editeur::before {
+  content: ""; position: absolute; top: -7px; left: var(--dl-fleche, 32px);
+  width: 12px; height: 12px; transform: translateX(-50%) rotate(45deg);
+  background: inherit;
+  border-left: 1px solid var(--bordure, rgba(127,127,127,.28));
+  border-top: 1px solid var(--bordure, rgba(127,127,127,.28));
+}
+/* Le titre reste pour les lecteurs d'écran : eux n'ont pas l'entourage visuel qui dit quelle
+   prise est en cours d'édition. Il ne doit simplement plus occuper la place à l'écran. */
+.dl-pour-lecteur {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Repère d'orientation : il dit par quel bout lire le bandeau. Le schéma constructeur place
+   « Reference In » à l'extrémité côté PCI Express — sans ce repère, un dessin horizontal se
+   retourne mentalement, et on envoie brancher au mauvais bout. */
+.dl-cote-pci {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  opacity: .45; padding: 2px 0; margin-right: 2px; align-self: stretch;
+  border-right: 1px dashed var(--bordure, rgba(127,127,127,.4));
+  /* ⚠ EN ÉCRITURE VERTICALE, LES AXES DU FLEX SONT ÉCHANGÉS. `align-items: center` seul
+     centrait le texte à l'horizontale et le laissait collé EN HAUT : c'est
+     `justify-content` qui agit sur l'axe vertical ici. On pose les deux, pour que le repère
+     reste centré quelle que soit la hauteur du bandeau — laquelle change avec la longueur
+     des mesures (« aucun signal » et « 1920×1080 · 50.02 i/s » n'occupent pas le même
+     nombre de lignes). */
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Paires Fill & Key ─────────────────────────────────────────────────────────────────────
+   Les deux connecteurs d'une sortie F&K sont LIÉS : ils partent ensemble et partagent format
+   et pré-charge. Rien ne le montrait, et ils se lisaient comme deux sorties indépendantes.
+   Le lien passe par un numéro de paire commun plutôt que par un trait : les deux BNC ne sont
+   pas forcément voisins sur l'équerre, et un trait entre prises non adjacentes mentirait. */
+.dl-prise[data-fk] .dl-bnc { border-color: var(--accent-decoupe, #6fbf8f); }
+.dl-prise[data-fk]::after {
+  content: ""; position: absolute; inset: -4px -2px; border-radius: 8px;
+  border: 1px dashed var(--accent-decoupe, #6fbf8f); opacity: .55; pointer-events: none;
+}
+.dl-prise { position: relative; }
+.dl-fk {
+  display: inline-block; margin-left: 4px; padding: 0 4px; border-radius: 4px;
+  font-size: .92em; font-weight: 600; letter-spacing: .02em;
+  color: var(--accent-decoupe, #6fbf8f);
+  border: 1px solid var(--accent-decoupe, #6fbf8f);
+}
+
+/* ── Le menu, DANS le bloc de la carte ─────────────────────────────────────────────────────
+   Il était un bloc séparé, et l'avertissement sur l'ordre des prises s'intercalait entre le
+   bandeau et lui : la flèche pointait dans le vide et le menu paraissait de nouveau loin du
+   connecteur. Il vit maintenant dans la même section, juste sous les prises. */
+.dl-carte > .dl-editeur {
+  margin: 10px 0 0;
+  background: var(--bg-input, rgba(127,127,127,.08));
+}
+/* Les champs et les boutons portent les classes de l'interface (.ctl-input, .btn) : ils ne
+   doivent donc RIEN redéfinir ici, sinon la console dérive du reste du produit à chaque
+   évolution de la charte. On ne pose que la largeur minimale, qui est une contrainte de
+   lisibilité propre à ces listes (noms de flux longs). */
+.dl-champ .ctl-input { min-width: 190px; }
+/* Au doigt : 44 px de cible, iPad étant la référence tactile. */
+.dl-champ .ctl-input, .dl-actions .btn { min-height: 44px; }
+.dl-actions .btn { margin-top: 0; }
+
+/* Dispositions enregistrées. ⚠ MÊME RÈGLE QUE CI-DESSUS : on ne redéfinit RIEN de l'apparence
+   des contrôles, qui vient de la charte (.ctl-input, .btn). On pose la mise en ligne et la
+   cible tactile de 44 px — et c'est leur ABSENCE qui faisait que cette barre jurait avec le
+   reste : trois contrôles de trois hauteurs différentes, signalé sur capture d'écran. Les
+   règles de taille étaient portées par `.dl-champ` et `.dl-actions` seulement, donc tout
+   nouveau bloc naissait hors charte sans que rien ne le dise. */
+.dl-dispositions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 2px;
+}
+/* ⚠ HAUTEUR IMPOSÉE, PAS SEULEMENT UN MINIMUM. Un <select> ne se dimensionne pas comme un
+   <input> : avec `min-height` seul, le navigateur lui laisse sa hauteur native et il reste
+   plus court que ses voisins — signalé sur capture d'écran, deux fois. `height` aligne les
+   trois familles de contrôles sur la même ligne de base. */
+.dl-dispositions .ctl-input,
+.dl-dispositions .btn { height: 44px; min-height: 44px; margin-top: 0; }
+.dl-dispositions .ctl-input { min-width: 190px; }
+.dl-dispositions select.ctl-input { min-width: 220px; }
+
+/* Repli « Import / export » : deux gestes rares, qui n'ont pas à occuper la barre en
+   permanence. Replié, il tient en un bouton ; le champ de fichier natif — laid et large —
+   est masqué et déclenché par un bouton de la charte. */
+.dl-menu { position: relative; }
+.dl-menu > summary {
+  list-style: none; cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; height: 44px; padding: 0 12px;
+  border-radius: var(--radius-small, 5px);
+  border: 1px solid var(--bordure, rgba(127,127,127,.35));
+  background: var(--fond-enfonce, rgba(127,127,127,.12));
+  font-size: .85em;
+}
+.dl-menu > summary::-webkit-details-marker { display: none; }
+/* ★ LE PANNEAU S'OUVRE À CÔTÉ, EN SUPERPOSITION — il ne pousse rien (demandé le 20/10).
+   Replié dans le flux, il grandissait la page à chaque ouverture : les deux cartes se
+   décalaient vers le bas, et refermer rendait la place d'un coup. Un panneau qui déplace ce
+   qu'on regarde fait perdre l'endroit où on en était.
+   ⚠ `position: absolute` le sort du flux, donc la barre ne bouge plus ; `top: 0` l'aligne sur
+   le bouton qui l'ouvre, et `white-space: nowrap` empêche les deux boutons de se replier en
+   colonne dans un espace contraint. */
+.dl-menu-corps {
+  /* ★ LE PANNEAU EST REMONTÉ DE SON PROPRE REMBOURRAGE. Ancré à `top: 0`, sa BORDURE
+     s'alignait sur le bouton — mais ses boutons À LUI tombaient 9 px plus bas (8 de
+     rembourrage + 1 de bordure), et la ligne de la barre se cassait à l'ouverture. Ce qu'on
+     veut aligner, ce ne sont pas les cadres, ce sont les CONTRÔLES entre eux.
+     Les deux valeurs sont liées : changer le rembourrage sans changer le décalage recasserait
+     l'alignement, d'où la variable. */
+  --dl-menu-pad: 8px;
+  display: flex; gap: 8px; align-items: center;
+  padding: var(--dl-menu-pad); border-radius: 8px;
+  border: 1px solid var(--bordure, rgba(127,127,127,.35));
+  background: var(--fond-elev, var(--fond, #1b1b1b));
+  position: absolute;
+  top: calc(-1 * (var(--dl-menu-pad) + 1px));
+  left: calc(100% + 8px); z-index: 30;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+
+/* Journal d'une mise à jour de micrologiciel : sortie brute de l'outil Blackmagic. Bornée en
+   hauteur — un flash écrit des dizaines de lignes, et le bandeau des connecteurs ne doit pas
+   partir hors de l'écran pendant qu'on le lit. */
+.dl-journal {
+  margin: .5rem 0 0;
+  padding: .5rem .6rem;
+  max-height: 14rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: .82rem;
+  line-height: 1.35;
+  background: var(--ctl-input-bg, rgba(0,0,0,.25));
+  border: 1px solid var(--ctl-border, rgba(255,255,255,.15));
+  border-radius: 6px;
+}
+
+/* ── Bandeau « pilote absent » ────────────────────────────────────────────────────────────
+   Il emprunte sa couleur à la charte (`alert alert-error`, base.css) : rien n'est redessiné
+   ici, seul l'espacement interne est posé. Le titre est en gras et non en petit texte —
+   c'est le premier état bloquant qu'on lit en arrivant sur la page, pas une note de bas de
+   bloc. Le dépôt garde sa hauteur tactile (44 px, cf. plus haut). */
+.dl-pilote { margin: 0 0 14px; padding: 12px 14px; }
+.dl-pilote-titre { margin: 0 0 6px; font-size: 1em; font-weight: 700; }
+.dl-pilote-quoi { margin: 0 0 10px; font-size: .88em; }
+.dl-pilote-depot { margin-top: 4px; }
+.dl-pilote-ou { margin-top: 8px; opacity: .85; }
+.dl-pilote-suite { margin: 12px 0 0; padding-left: 20px; font-size: .85em; }
+.dl-pilote-suite li { margin-bottom: 3px; }
+/* L'étape FAITE reste lisible mais cesse de réclamer : barrée et estompée, jamais retirée —
+   une liste dont les éléments disparaissent ne dit plus où l'on en est. */
+.dl-pilote-suite li.dl-faite { text-decoration: line-through; opacity: .55; }
+.dl-pilote-suite li.dl-ici { font-weight: 700; }
+.dl-pilote-plan { margin: 0 0 10px; font-size: .86em; opacity: .9; }
+
+/* ── Bandeau « conteneur injoignable » ────────────────────────────────────────────────────
+   Orange et non rouge : le conteneur arrêté est une CONSÉQUENCE (souvent du pilote absent,
+   dont le bandeau rouge est juste au-dessus), et deux rouges empilés ne hiérarchisent plus
+   rien. L'ordre de lecture est celui de la causalité : la cause en rouge, l'effet en orange. */
+.dl-conteneur { margin: 0 0 14px; padding: 12px 14px; }
+.dl-conteneur-texte { margin: 0; font-size: .88em; }
+
+/* ── Légende des couleurs ─────────────────────────────────────────────────────────────────
+   Discrète mais JAMAIS repliée : c'est une clé de lecture du ruban juste au-dessus, et une clé
+   de lecture qu'il faut déplier pour trouver n'arrive pas à celui qui en a besoin — il n'ouvre
+   pas un menu, il conclut que les couleurs sont décoratives. */
+.dl-legende {
+  list-style: none; margin: 10px 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 6px 16px;
+  font-size: .78em; opacity: .8;
+}
+.dl-legende li { display: flex; align-items: center; gap: 7px; }
+/* La pastille est une vraie prise, en réduction : seule la TAILLE change ici, jamais la
+   couleur — qui reste celle des règles `[data-role]` plus haut. */
+.dl-legende .dl-prise { min-width: 0; }
+.dl-legende .dl-bnc { width: 15px; height: 15px; border-width: 2px; }
+.dl-legende .dl-prise[data-signal="1"] .dl-bnc { box-shadow: 0 0 0 2px var(--accent-ok, rgba(80,190,120,.45)); }
+.dl-legende .dl-prise[data-role="inactif"] .dl-bnc::after { inset: -2px auto -2px 50%; width: 1px; }

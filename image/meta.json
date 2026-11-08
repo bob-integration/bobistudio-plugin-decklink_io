@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "date": "2026-11-03",
+  "image_tag": "bobi-decklink:0.2.0",
+  "changes": {
+    "Le binaire de capture s'appelle `decklink_rx` (0.2.0)": [
+      "Renommage de `decklink_mxl` en `decklink_rx` : les deux sens de la carte sont désormais nommés depuis le fil SDI, `rx` ce qui entre et `tx` ce qui sort. Aucun changement de comportement, aucun changement de recette — les quatre binaires de l'étage builder sont les mêmes, l'un change de nom.",
+      "★ LE TAG CHANGE PARCE QUE LE NOM DU BINAIRE EST UN CONTRAT : le script du plugin (0.29.51) cherche `/usr/local/bin/decklink_rx`. Un conteneur n'adopte une image qu'en changeant d'`image_tag`, donc par RECRÉATION — et un nœud porteur d'une carte doit reconstruire l'image avant de déployer le plugin 0.29.51, sans quoi la capture ne trouve pas son binaire. C'est la même règle que celle écrite dans `plugins/_compute_runtime/meta.json` du temps où ces binaires vivaient dans le socle : version ET image_tag bumpés tous les deux."
+    ],
+    "Création de l'image (0.1.0)": [
+      "Fine couche FROM bobi-compute (BASE_IMAGE réécrit au staging vers l'image_tag compute courant, comme bobi-gui et compute-gpu) : les quatre binaires du chemin DeckLink — decklink_mxl, decklink_tx, decklink_probe, decklink_profile — compilés dans un étage builder (les paquets -dev ne vont pas dans l'image livrée).",
+      "★ POURQUOI : ces binaires étaient compilés dans bobi-compute, le socle partagé de tous les plugins non-2110. Un nœud sans carte les portait quand même, et surtout le socle NE SE CONSTRUISAIT PAS sans les sources de ce plugin — un utilisateur extérieur l'a signalé le 2026-09-23 : le dépôt public publie la recette mais pas le plugin (sous-module privé), donc aucune image ne se construisait et le produit ne faisait rien. Le socle n'a plus aucune dépendance à ce plugin.",
+      "node_only : construite sur les seuls nœuds qui déclarent la capacité « decklink » (laquelle exige « compute », même image de base) ; jamais poussée à la flotte. Tag commun dans le réglage decklink_image.",
+      "Rien de Blackmagic n'est embarqué : seuls les en-têtes du SDK entrent (redistribution autorisée, cf. THIRD-PARTY-NOTICES.md) ; libDeckLinkAPI.so est montée depuis l'hôte à l'exécution, comme avant — le chemin d'exécution (needs_decklink, /dev/blackmagic/*, host_driver blackmagic) est inchangé.",
+      "Garde-fou de l'étage runtime : `ldd` sur les quatre binaires — un binaire qui compile peut manquer d'une bibliothèque à l'exécution, et l'étage builder ne prouve rien sur l'image livrée.",
+      "MESURÉ le 2026-11-01 : les deux images construites sur r620-2, un nœud SANS carte. bobi-compute:0.81 ne porte plus aucun binaire decklink* (0.80 en portait 4) et conserve les en-têtes MXL que 0.80 n'avait pas ; bobi-decklink:0.1.0 porte les quatre binaires et `ldd` n'y signale AUCUNE bibliothèque manquante — pas même libDeckLinkAPI.so, que `DeckLinkAPIDispatch.cpp` charge par dlopen à l'exécution plutôt que de la lier. L'exclusion de libDeckLinkAPI dans le garde-fou ne filtre donc rien aujourd'hui : c'est un filet pour le jour où l'API serait liée directement.",
+      "Le gain n'est PAS la taille (les quatre binaires pèsent quelques centaines de kilo-octets, et la couche fine partage toutes les couches du socle) : c'est que le socle partagé ne réclame plus les sources d'un plugin optionnel pour se construire."
+    ]
+  }
+}

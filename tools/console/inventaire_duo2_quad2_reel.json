@@ -1,0 +1,825 @@
+{
+  "devices": [
+    {
+      "index": 0,
+      "model": "DeckLink Duo 2",
+      "display_name": "DeckLink Duo (1)",
+      "persistent_id": 4040731136,
+      "topological_id": 5309696,
+      "sub_device_index": 0,
+      "sub_device_count": 4,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "half",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "2dhd",
+        "label": "2 sous-périph. half-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hp50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 273
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": false,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": true,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "model": "DeckLink Duo 2",
+      "display_name": "DeckLink Duo (2)",
+      "persistent_id": 4040731137,
+      "topological_id": 5309698,
+      "sub_device_index": 1,
+      "sub_device_count": 4,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "half",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "2dhd",
+        "label": "2 sous-périph. half-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": true,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": false,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": true,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "model": "DeckLink Duo 2",
+      "display_name": "DeckLink Duo (3)",
+      "persistent_id": 4040731138,
+      "topological_id": 5309697,
+      "sub_device_index": 2,
+      "sub_device_count": 4,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "half",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "2dhd",
+        "label": "2 sous-périph. half-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": true,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": false,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": true,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "model": "DeckLink Duo 2",
+      "display_name": "DeckLink Duo (4)",
+      "persistent_id": 4040731139,
+      "topological_id": 5309699,
+      "sub_device_index": 3,
+      "sub_device_count": 4,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "half",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "2dhd",
+        "label": "2 sous-périph. half-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hi50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 17
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": false,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": true,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (1)",
+      "persistent_id": 4037714288,
+      "topological_id": 5277184,
+      "sub_device_index": 0,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": true,
+      "keying_externe": true,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "full",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hp50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 273
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (2)",
+      "persistent_id": 4037714289,
+      "topological_id": 5277186,
+      "sub_device_index": 1,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": true,
+      "keying_externe": true,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "full",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hp50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 273
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (3)",
+      "persistent_id": 4037714290,
+      "topological_id": 5277440,
+      "sub_device_index": 2,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": true,
+      "keying_externe": true,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "full",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hi50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 17
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (4)",
+      "persistent_id": 4037714291,
+      "topological_id": 5277442,
+      "sub_device_index": 3,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": true,
+      "keying_externe": true,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "full",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": true,
+        "reference_verrouillee": false,
+        "mode_detecte": "Hi50",
+        "mode_reference": "pal ",
+        "lien_sdi": "lcsl",
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": 17
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (5)",
+      "persistent_id": 4037714292,
+      "topological_id": 5277185,
+      "sub_device_index": 4,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "inactive",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": false,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (6)",
+      "persistent_id": 4037714293,
+      "topological_id": 5277187,
+      "sub_device_index": 5,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "inactive",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": false,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (7)",
+      "persistent_id": 4037714294,
+      "topological_id": 5277441,
+      "sub_device_index": 6,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "inactive",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": false,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "model": "DeckLink Quad 2",
+      "display_name": "DeckLink Quad (8)",
+      "persistent_id": 4037714295,
+      "topological_id": 5277443,
+      "sub_device_index": 7,
+      "sub_device_count": 8,
+      "vanc_exige_10bit": false,
+      "keying_interne": false,
+      "keying_externe": false,
+      "dual_link_sdi": false,
+      "quad_link_sdi": false,
+      "duplex": "inactive",
+      "io": {
+        "capture": true,
+        "playback": true
+      },
+      "connecteurs": {
+        "entree": "sdi",
+        "sortie": "sdi"
+      },
+      "profil_actif": {
+        "id": "1dfd",
+        "label": "1 sous-périph. full-duplex"
+      },
+      "signal": {
+        "entree_verrouillee": false,
+        "reference_verrouillee": false,
+        "mode_detecte": null,
+        "mode_reference": "pal ",
+        "lien_sdi": null,
+        "drapeaux_entree": 0,
+        "drapeaux_detectes": null
+      },
+      "modes_sortie": [
+        "525i59.94 NTSC",
+        "625i50 PAL",
+        "1080p23.98",
+        "1080p24",
+        "1080p25",
+        "1080p29.97",
+        "1080p30",
+        "1080p50",
+        "1080p59.94",
+        "1080p60",
+        "1080i50",
+        "1080i59.94",
+        "1080i60",
+        "720p50",
+        "720p59.94",
+        "720p60"
+      ],
+      "profils": [
+        {
+          "id": "1dfd",
+          "label": "1 sous-périph. full-duplex",
+          "actif": true,
+          "pairs": 1
+        },
+        {
+          "id": "2dhd",
+          "label": "2 sous-périph. half-duplex",
+          "actif": false,
+          "pairs": 1
+        }
+      ]
+    }
+  ],
+  "module_noyau": "blackmagic_io",
+  "noeuds_noyau": 12,
+  "status": "ok",
+  "detail": "le SDK répond et énumère au moins une carte",
+  "device_count": 12
+}

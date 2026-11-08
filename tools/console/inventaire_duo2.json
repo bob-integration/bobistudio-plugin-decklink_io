@@ -1,0 +1,212 @@
+{
+ "devices": [
+  {
+   "index": 0,
+   "model": "DeckLink Duo 2",
+   "display_name": "DeckLink Duo (1)",
+   "persistent_id": 4040731136,
+   "topological_id": 5309696,
+   "sub_device_index": 0,
+   "sub_device_count": 4,
+   "vanc_exige_10bit": false,
+   "keying_interne": true,
+   "keying_externe": true,
+   "dual_link_sdi": false,
+   "quad_link_sdi": false,
+   "duplex": "full",
+   "io": {
+    "capture": true,
+    "playback": true
+   },
+   "connecteurs": {
+    "entree": "sdi",
+    "sortie": "sdi"
+   },
+   "profil_actif": {
+    "id": "1dfd",
+    "label": "1 sous-périph. full-duplex"
+   },
+   "signal": {
+    "entree_verrouillee": true,
+    "reference_verrouillee": true,
+    "mode_detecte": "Hi50"
+   },
+   "profils": [
+    {
+     "id": "1dfd",
+     "label": "1 sous-périph. full-duplex",
+     "actif": true,
+     "pairs": 1
+    },
+    {
+     "id": "2dhd",
+     "label": "2 sous-périph. half-duplex",
+     "actif": false,
+     "pairs": 1
+    }
+   ],
+   "modes_sortie": [
+    "1080i50",
+    "1080p25",
+    "1080p50",
+    "720p50"
+   ]
+  },
+  {
+   "index": 1,
+   "model": "DeckLink Duo 2",
+   "display_name": "DeckLink Duo (2)",
+   "persistent_id": 4040731137,
+   "topological_id": 5309698,
+   "sub_device_index": 1,
+   "sub_device_count": 4,
+   "vanc_exige_10bit": false,
+   "keying_interne": false,
+   "keying_externe": false,
+   "dual_link_sdi": false,
+   "quad_link_sdi": false,
+   "duplex": "half",
+   "io": {
+    "capture": true,
+    "playback": true
+   },
+   "connecteurs": {
+    "entree": "sdi",
+    "sortie": "sdi"
+   },
+   "profil_actif": {
+    "id": "2dhd",
+    "label": "2 sous-périph. half-duplex"
+   },
+   "signal": {
+    "entree_verrouillee": false,
+    "reference_verrouillee": true,
+    "mode_detecte": null
+   },
+   "profils": [
+    {
+     "id": "1dfd",
+     "label": "1 sous-périph. full-duplex",
+     "actif": false,
+     "pairs": 1
+    },
+    {
+     "id": "2dhd",
+     "label": "2 sous-périph. half-duplex",
+     "actif": true,
+     "pairs": 1
+    }
+   ],
+   "modes_sortie": [
+    "1080i50",
+    "1080p25",
+    "1080p50",
+    "720p50"
+   ]
+  },
+  {
+   "index": 2,
+   "model": "DeckLink Duo 2",
+   "display_name": "DeckLink Duo (3)",
+   "persistent_id": 4040731138,
+   "topological_id": 5309697,
+   "sub_device_index": 2,
+   "sub_device_count": 4,
+   "vanc_exige_10bit": false,
+   "keying_interne": false,
+   "keying_externe": false,
+   "dual_link_sdi": false,
+   "quad_link_sdi": false,
+   "duplex": "inactive",
+   "io": {
+    "capture": true,
+    "playback": true
+   },
+   "connecteurs": {
+    "entree": "sdi",
+    "sortie": "sdi"
+   },
+   "profil_actif": {
+    "id": "1dfd",
+    "label": "1 sous-périph. full-duplex"
+   },
+   "signal": {
+    "entree_verrouillee": false,
+    "reference_verrouillee": true,
+    "mode_detecte": null
+   },
+   "profils": [
+    {
+     "id": "1dfd",
+     "label": "1 sous-périph. full-duplex",
+     "actif": true,
+     "pairs": 1
+    },
+    {
+     "id": "2dhd",
+     "label": "2 sous-périph. half-duplex",
+     "actif": false,
+     "pairs": 1
+    }
+   ],
+   "modes_sortie": null
+  },
+  {
+   "index": 3,
+   "model": "DeckLink Duo 2",
+   "display_name": "DeckLink Duo (4)",
+   "persistent_id": 4040731139,
+   "topological_id": 5309699,
+   "sub_device_index": 3,
+   "sub_device_count": 4,
+   "vanc_exige_10bit": false,
+   "keying_interne": false,
+   "keying_externe": false,
+   "dual_link_sdi": false,
+   "quad_link_sdi": false,
+   "duplex": "half",
+   "io": {
+    "capture": true,
+    "playback": true
+   },
+   "connecteurs": {
+    "entree": "sdi",
+    "sortie": "sdi"
+   },
+   "profil_actif": {
+    "id": "2dhd",
+    "label": "2 sous-périph. half-duplex"
+   },
+   "signal": {
+    "entree_verrouillee": false,
+    "reference_verrouillee": true,
+    "mode_detecte": null
+   },
+   "profils": [
+    {
+     "id": "1dfd",
+     "label": "1 sous-périph. full-duplex",
+     "actif": false,
+     "pairs": 1
+    },
+    {
+     "id": "2dhd",
+     "label": "2 sous-périph. half-duplex",
+     "actif": true,
+     "pairs": 1
+    }
+   ],
+   "modes_sortie": [
+    "1080i50",
+    "1080p25",
+    "1080p50",
+    "720p50"
+   ]
+  }
+ ],
+ "module_noyau": "blackmagic_io",
+ "noeuds_noyau": 4,
+ "status": "ok",
+ "detail": "le SDK répond et énumère au moins une carte",
+ "device_count": 4
+}

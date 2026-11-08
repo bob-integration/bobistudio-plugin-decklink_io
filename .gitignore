@@ -1,0 +1,16 @@
+decklink_probe
+decklink_in
+decklink_out
+decklink_profile
+decklink_rx
+verif_flow_id
+stub/
+stub_muet/
+verif_anc
+
+# En-têtes libmxl récupérées au tag épinglé (cf. tools/en_tetes_mxl.sh) — amont, pas à nous.
+tools/.mxl-include/
+
+# Bytecode Python : régénéré à chaque exécution, jamais versionné (22/10).
+__pycache__/
+*.pyc

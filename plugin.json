@@ -1,0 +1,172 @@
+{
+  "license": "GPL-3.0-or-later",
+  "type": "decklink_io",
+  "label": "I/O for Blackmagic Design DeckLink",
+  "runtime": "docker",
+  "image": "decklink",
+  "version": "0.29.55",
+  "description": "Entrées/sorties SDI Blackmagic sur le bus MXL — deux modèles mesurés à ce jour, DeckLink Duo 2 et Quad 2, le code ne portant aucune branche par modèle. Capture v210 10 bits convertie en planar, écrite en grains MXL par un binaire natif. Un conteneur par CARTE : le profil, qui décide du rôle de chaque connecteur, est à l'échelle du groupe de sous-périphériques.",
+  "script_template": "script.py",
+  "deploy_defaults": {
+    "inputs": [],
+    "outputs": []
+  },
+  "resources": {
+    "cores": 5,
+    "memory": 2048,
+    "pin": true,
+    "cores_per_item": {
+      "lists": [
+        "inputs",
+        "outputs"
+      ],
+      "pair_key": "key_persistent_id",
+      "base": 0.1,
+      "per": 0.49,
+      "peak": 1.22
+    },
+    "physical_cores": true,
+    "node_io": true,
+    "io_pci_vendor": "0xbdbd"
+  },
+  "_resources_mesure": "MÉMOIRE (relevée le 2026-10-30, Z8 #231) : 2048 Mio. ⚠ CE CHIFFRE ÉTAIT À 1024 ET N'AVAIT JAMAIS ÉTÉ MESURÉ — il vivait à côté du calcul de cœurs, détaillé et daté, ce qui lui donnait le même air d'autorité. C'est le défaut à retenir : dans un même bloc, un nombre mesuré et un nombre deviné sont indiscernables. CE QU'IL A COÛTÉ : à 1011/1024 Mio, le cgroup de #231 (5 entrées + 2 sorties) était en récupération DIRECTE — pgscan_direct 33 186 386, c'est-à-dire le noyau qui récupère des pages DANS les fils de capture, donc qui les bloque. Conséquences observées pendant des heures sans que la cause soit soupçonnée : callbacks en retard, video_resync_fwd par centaines, Atelier_5 à 21 i/s au lieu de 50, images répétées au PGM, et une rafale de 750 trames jetées 4 s après une alerte mémoire à 99 %. L'alerte « 0,99 Gio sur 1,00 » s'était répétée 1882 fois depuis 09:03. CE QUI A TRANCHÉ : `docker update --memory 2g` à chaud le 2026-10-30 à 11:55:31 — dans les 60 s, resync_fwd +0 sur les entrées 1-4, Atelier_5 à 50,02 i/s, mémoire stabilisée à 1113 Mio, pgscan_direct en décroissance. LE CALCUL, SUR DEUX MESURES DONT UNE NON CONTRAINTE. (1) dell-1 #1288, le 2026-10-30 : AUCUNE limite (memory.max=max, HostConfig.Memory=0, donc le profil de 0.29.35 ne lui a jamais été appliqué — il est antérieur), pgscan_direct À ZÉRO, memory.current 347 Mio pour 1 entrée + 1 sortie en 8 bits (anon 301, shmem 43, file_mapped 43 : le bus MXL mappé compte dans le cgroup). C'est la seule mesure du besoin RÉEL, puisque rien ne la contraignait. (2) Z8 #231 : 1113 Mio pour 5 entrées + 2 sorties, 60 s après le desserrage. Droite sur ces deux points : 153 Mio PAR CONNECTEUR et 41 Mio de part fixe (agent + script) — et la part fixe est DÉDUITE, pas devinée, ce qui est tout l'intérêt d'avoir deux points au lieu d'un. Pour une Quad 2 au complet : 8 × 153 + 41 = 1266 Mio, qu'on veut à ~70 % de la limite pour que le noyau n'entre JAMAIS en récupération directe (c'est elle qui bloque les fils de capture, pas l'OOM) → 1809, arrondi à 2048 — valeur que la mesure à chaud de la Z8 corrobore indépendamment. ⚠ À REMESURER EN 10 BITS : les deux relevés sont en 8 bits, et la conversion v210 → planar n'y est pas isolée. Le point (2) reste un MINORANT (pgscan encore en décroissance au relevé) : une mesure prise SOUS pression ne dit pas le besoin, elle dit la limite. Une carte à 2 ou 4 prises n'a pas besoin de 2 Gio : la descendre par `memory_override` sur CE conteneur, jamais en baissant ce plancher pour tout le parc. || CŒURS : Cœurs DÉDIÉS (décision de Cyril, 2026-10-29) : la carte porte les entrées et la sortie PGM SDI de l'antenne, elle ne doit plus partager le pool avec le transcodeur, les stills et le monitoring — le 28/10, des cœurs gardés par des conteneurs DÉTRUITS avaient réduit ce pool à 2 cœurs. C'est une ASSURANCE, pas un remède avéré : les images répétées venaient du code (0.29.33/0.29.34), et la Z8 a mesuré 0 refus / 0 répétition même sous un transcodage de ~26 cœurs dans le pool partagé. DEUX MESURES, c'est la plus lourde qui fixe le chiffre. (1) Z8 #231, plugin 0.29.34, 2026-10-29, cgroup cpu.stat sur 60 s, carte à 5 entrées en capture + 2 sorties (PGM et multiview), en service : 331 % d'un cœur keyer coupé, 345 % keyer en service, 0 ms throttled ; fil principal de chaque `decklink_rx` à 38-44 %, les autres fils à 0-1 % → ~0,49 cœur PAR CONNECTEUR. (2) dell-1 #1288, 0.29.28, 2026-10-29, 40 s à la seconde, UNE entrée 1080p50 8 bits (16 ch audio + ANC) + UNE sortie : 0,577 cœur en moyenne, 0,704 au pire (rapport pointe/moyenne 1,22), soit 0,281 l'entrée et 0,256 la sortie. Le coût est donc PAR CONNECTEUR (un processus chacun) et, la carte étant GENLOCKÉE, les callbacks tombent sur le même créneau : les pointes s'ADDITIONNENT au lieu de s'étaler. Plancher dimensionné sur la carte la plus fournie (Quad 2, 8 prises) : 8 × 0,49 + 0,1 pour l'agent = 4,0 cœurs en moyenne, × 1,22 de pointe ≈ 4,9 → 5 cœurs. À REMESURER avant de réduire, et notamment en 10 BITS (la conversion v210 → planar n'est pas isolée dans ces chiffres). Une carte à 2 ou 4 prises n'a pas besoin de 5 cœurs : la descendre par `cores_override` sur CE conteneur (PATCH /api/containers/<vmid>/resources), jamais en baissant ce plancher pour tout le parc. || CŒURS PAR PRISE (décision du 2026-11-07) : la carte est l'ENTRÉE-SORTIE du nœud, comme le moteur 2110 — elle n'est plus dimensionnée sur la carte la plus fournie mais sur ses prises ACTIVES, avec les deux mesures ci-dessus : ceil((0,1 + 0,49 × prises) × 1,22), au moins 1 (`cores_per_item` ; une sortie Fill & Key compte deux prises) → 1 prise = 1 cœur, 2 = 2, 4 = 3, 8 = 5. `cores` (5) ne sert plus que de repli pour un orchestrateur antérieur ; `cores_override` sur un conteneur prime toujours. Les cœurs sont des cœurs PHYSIQUES ENTIERS (`physical_cores` : un fil par cœur, frères HT fermés à tout autre conteneur, partagé compris — les flashs noirs de la Z8 du 30/10 venaient de frères HT tenus par deux pyramides), sur le socket de la carte (`io_pci_vendor` 0xbdbd = Blackmagic). `node_io` : garantie par construction, la carte ne compte pas dans le verdict « projet garanti » et n'est ni étalonnée ni déplacée. Activer une prise recrée donc le conteneur : la page prépare plusieurs prises et les applique en une fois.",
+  "control": {
+    "endpoints": {
+      "/profile": {
+        "method": "POST",
+        "port": 8082,
+        "desc": "Bascule le profil de la carte pour UN sous-périphérique, désigné par son identifiant stable. Relâche la carte avant, la reprend après, et rend la disposition RÉELLE observée — le rayon annoncé par la carte sous-estime. Opération d'installation : hors macros (décision du 07/09 et du 16/10)."
+      }
+    },
+    "read_endpoints": {
+      "/state": {
+        "method": "GET",
+        "port": 8082,
+        "path": "/state",
+        "desc": "État par entrée et par sortie : présence de signal, cadence, format détecté, trames répétées, redémarrages. Lisible en CONDITION de macro."
+      },
+      "/inventory": {
+        "method": "GET",
+        "port": 8082,
+        "path": "/inventory",
+        "desc": "Inventaire de la carte : prises, identifiants stables, duplex (dont les prises INACTIVES), profil actif et profils disponibles. Lu par la sonde DANS le conteneur — le contrôleur n'exécute aucun code plugin."
+      }
+    },
+    "hot_config": {
+      "port": 8082,
+      "path": "/config",
+      "desc": "Reconfiguration À CHAUD : le superviseur compare la nouvelle configuration à celle qui tourne et ne relance QUE les connecteurs dont la ligne de commande change. Refus 409 si la version du plugin ou le nom d'hôte diffèrent — l'orchestrateur redémarre alors le script comme avant."
+    }
+  },
+  "config_schema": [
+    {
+      "key": "inputs",
+      "type": "json",
+      "label": "Entrées",
+      "default": [],
+      "help": "Liste [{\"persistent_id\": <id>, \"flow\": \"<nom>\"}]. Le persistent_id vient de tools/probe ; il est STABLE au changement de profil, contrairement à l'index de sous-périphérique, qui désigne une autre prise après une bascule."
+    },
+    {
+      "key": "missing_frame_mode",
+      "type": "text",
+      "label": "Images manquantes",
+      "default": "",
+      "hidden": true,
+      "help": "Ce que la SORTIE émet quand la source ne fournit pas d'image fraîche : \"repeat\" (recopie la dernière image, invisible à l'antenne) ou \"black\" (noir légal, pour voir exactement quand ça saute). Vide = suit le réglage global Réglages → MXL → Image manquante. Ne concerne JAMAIS la capture : un trou y est créé honnêtement et le combler là priverait tous les consommateurs du choix. La valeur effective est résolue au rendu par l'orchestrateur et transmise au binaire par un fichier, pour qu'une bascule ne relance pas la sortie d'antenne."
+    },
+    {
+      "key": "binary",
+      "type": "text",
+      "label": "Binaire de capture",
+      "default": "/usr/local/bin/decklink_rx",
+      "hidden": true,
+      "help": "Chemin du binaire natif dans l'image d'exécution."
+    },
+    {
+      "key": "outputs",
+      "type": "json",
+      "label": "Sorties",
+      "default": [],
+      "help": "Liste [{\"persistent_id\": <id>, \"flow\": \"<flux à rejouer>\", \"mode\": \"1080p50\"}]. Le mode est EXPLICITE : « le premier supporté » tombe sur du NTSC SD."
+    },
+    {
+      "key": "layouts",
+      "type": "json",
+      "hidden": true,
+      "scope": "system",
+      "default": {},
+      "label": "Dispositions enregistrées",
+      "redeploiement": false,
+      "help": "Affectations de connecteurs enregistrées par carte, rappelables depuis la console. Écrites par la console, jamais à la main."
+    }
+  ],
+  "wiring": {
+    "produces": [
+      {
+        "from_list": "inputs",
+        "shm_field": "flow",
+        "essence": "video",
+        "label": "{carte} SDI {prise_label}"
+      },
+      {
+        "from_list": "audio_ports",
+        "shm_field": "flow",
+        "essence": "audio",
+        "label": "{carte} SDI {prise_label} — audio {canaux_label}"
+      },
+      {
+        "from_list": "anc_ports",
+        "shm_field": "flow",
+        "essence": "data",
+        "label": "{carte} SDI {prise_label} — ANC"
+      }
+    ],
+    "consumes": [
+      {
+        "from_list": "outputs",
+        "shm_field": "flow",
+        "essence": "video",
+        "label": "{carte} SDI {prise_label}"
+      },
+      {
+        "from_list": "key_ports",
+        "shm_field": "flow",
+        "essence": "video",
+        "label": "{carte} SDI {prise_label} — découpe"
+      },
+      {
+        "from_list": "audio_out_ports",
+        "shm_field": "flow",
+        "essence": "audio",
+        "label": "{carte} SDI {prise_label} — audio {canaux_label}"
+      }
+    ],
+    "mode": "redeploy",
+    "state_endpoint": "/state"
+  },
+  "host_driver": {
+    "kind": "blackmagic",
+    "missing_status": [
+      "install_needs_file",
+      "missing_prereqs",
+      "install",
+      "no_tool"
+    ],
+    "_pourquoi": "Les QUATRE statuts de `node_agent/host_drivers/blackmagic.py:decide` où le pilote Desktop Video est absent ou inexploitable. `install` en fait partie : l'archive est déposée mais RIEN n'est encore posé. `no_tool` aussi : le paquet est là et l'outil manque, donc l'installation est à moitié faite — « aucune carte » ne voudrait rien dire dans cet état. CE QUI N'Y EST PAS, et délibérément : `unreadable` (l'outil répond mal — ambigu, et retenir un conteneur pour toujours sur une lecture ambiguë est pire que de le laisser essayer), `pending_shutdown` (le pilote est là et la carte marche, c'est le micrologiciel qui attend une coupure) et `no_card` (pas de carte n'est pas pas de pilote). ⚠ CETTE LISTE EST AUSSI CELLE DE `PILOTE_ABSENT` dans control.js, qui décide du bandeau rouge de la page : les deux doivent dire la même chose, et tests/verif_decklink_pilote_absent.js le vérifie."
+  },
+  "needs_decklink": true,
+  "split_io": true,
+  "nav": {
+    "section": "sources",
+    "label": "Sources",
+    "route": "/sources",
+    "order": 20,
+    "group": "entrees"
+  },
+  "ui": {
+    "control_html": "control.html",
+    "control_js": "control.js",
+    "control_css": "control.css",
+    "i18n": "i18n"
+  }
+}
