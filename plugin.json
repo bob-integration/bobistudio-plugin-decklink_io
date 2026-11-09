@@ -4,7 +4,8 @@
   "label": "I/O for Blackmagic Design DeckLink",
   "runtime": "docker",
   "image": "decklink",
-  "version": "0.29.55",
+  "version": "0.29.56",
+  "requires": {"core_min": "0.9.12"},
   "description": "Entrées/sorties SDI Blackmagic sur le bus MXL — deux modèles mesurés à ce jour, DeckLink Duo 2 et Quad 2, le code ne portant aucune branche par modèle. Capture v210 10 bits convertie en planar, écrite en grains MXL par un binaire natif. Un conteneur par CARTE : le profil, qui décide du rôle de chaque connecteur, est à l'échelle du groupe de sous-périphériques.",
   "script_template": "script.py",
   "deploy_defaults": {

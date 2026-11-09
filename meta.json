@@ -1,7 +1,10 @@
 {
-  "version": "0.29.55",
-  "date": "2026-11-08",
+  "version": "0.29.56",
+  "date": "2026-11-09",
   "changes": {
+    "Version minimale du cœur déclarée (0.29.56)": [
+      "Le manifeste déclare `requires.core_min` = 0.9.12 : l'orchestrateur refuse de l'installer sur un cœur plus ancien et le dit. Valeur = le cœur avec lequel la version précédente a été faite. Rien ne change dans le conteneur : rien à redéployer."
+    ],
     "Le dépôt porte ses propres mentions tierces (0.29.55)": [
       "Le README renvoyait à un THIRD-PARTY-NOTICES.md qui n'existait pas dans ce dépôt : l'explication des conditions du SDK ne vivait que dans le dépôt principal.",
       "Les en-têtes Blackmagic vendorisés (decklink_sdk/, 9 fichiers, 12.2.2), leur origine Debian, et la condition à tenir : conserver les mentions, ne pas éditer ces fichiers.",
