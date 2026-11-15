@@ -950,8 +950,16 @@ public:
             const uint16_t *cb = y  + (size_t)e_->w * hc;
             const uint16_t *cr = cb + (size_t)(e_->w / 2) * hc;
             const int ligne0 = e_->tff ? ch : (1 - ch);
-            // Une ligne sur deux dans la trame de sortie : le pas destination est DOUBLE.
-            g_pack10(y, cb, cr, dst + (size_t)ligne0 * rowBytes, rowBytes * 2, e_->w, hc);
+            // Une ligne sur deux dans la trame de sortie, empaquetée UNE PAR UNE au pas d'une ligne.
+            // ⚠ JAMAIS `rowBytes * 2` en pas : bobi_v210_pack10 remet à zéro la fin de chaque pas
+            //   (bourrage v210), et sur deux lignes ce bourrage est la ligne de l'AUTRE champ. Chaque
+            //   champ effaçait ainsi celui écrit avant lui : une ligne sur deux à Y=Cb=Cr=0, soit une
+            //   image verte qui suit pourtant la source (constaté en 1080i50 le 2026-11-15, capture
+            //   mesurée juste, sortie verte).
+            const size_t wc = (size_t)(e_->w / 2);
+            for (int l = 0; l < hc; l++)
+                g_pack10(y + (size_t)l * e_->w, cb + (size_t)l * wc, cr + (size_t)l * wc,
+                         dst + (size_t)(ligne0 + 2 * l) * rowBytes, rowBytes, e_->w, 1);
         }
         return true;
     }

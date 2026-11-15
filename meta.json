@@ -1,7 +1,11 @@
 {
-  "version": "0.29.56",
-  "date": "2026-11-09",
+  "version": "0.29.57",
+  "date": "2026-11-15",
   "changes": {
+    "Sortie entrelacée verte (0.29.57)": [
+      "En sortie entrelacée (1080i50, 1080i59.94), une ligne sur deux de la trame émise était à zéro : image verte qui suit pourtant la source. Pour poser chaque champ une ligne sur deux, la sortie appelait `bobi_v210_pack10` avec un pas de DEUX lignes ; or cette fonction remet à zéro la fin de chaque pas (bourrage d'alignement v210), donc la ligne de l'autre champ — chaque champ effaçait celui écrit avant lui. Constaté le 2026-11-15 : capture mesurée juste (Cb +38, Cr +12 sur une source violette), sortie verte. Les champs sont maintenant empaquetés ligne par ligne, au pas d'une ligne. Le progressif ne change pas.",
+      "⚠ LA CORRECTION EST DANS L'IMAGE `bobi-decklink:0.2.1`, pas dans le script : reconstruire l'image (Réglages → Images, nœuds à carte), puis recréer le conteneur DeckLink. Le script n'a pas changé ; ce numéro existe pour que la correction soit lisible dans le journal du plugin."
+    ],
     "Version minimale du cœur déclarée (0.29.56)": [
       "Le manifeste déclare `requires.core_min` = 0.9.12 : l'orchestrateur refuse de l'installer sur un cœur plus ancien et le dit. Valeur = le cœur avec lequel la version précédente a été faite. Rien ne change dans le conteneur : rien à redéployer."
     ],
