@@ -1,7 +1,11 @@
 {
-  "version": "0.29.57",
-  "date": "2026-11-15",
+  "version": "0.29.58",
+  "date": "2026-11-21",
   "changes": {
+    "Une source au mauvais format pour une sortie est signalée (0.29.58)": [
+      "Une capture 1080i50 câblée sur une sortie réglée en 1080p50 était acceptée sans un mot : la sortie tissait les deux champs en trames progressives et envoyait chacune deux fois. Le port de sortie déclare maintenant que son format est son `mode` (`format_field`). Le câblage le compare à la source, balayage compris, et propose de régler la sortie ou d'insérer un UDC ; en exploitation, un écart né après coup (source qui change, mode modifié) lève une alerte qui nomme les deux formats.",
+      "Rien ne change dans le conteneur : pas de redéploiement nécessaire. Demande un orchestrateur qui connaît `format_field` ; un plus ancien l'ignore."
+    ],
     "Sortie entrelacée verte (0.29.57)": [
       "En sortie entrelacée (1080i50, 1080i59.94), une ligne sur deux de la trame émise était à zéro : image verte qui suit pourtant la source. Pour poser chaque champ une ligne sur deux, la sortie appelait `bobi_v210_pack10` avec un pas de DEUX lignes ; or cette fonction remet à zéro la fin de chaque pas (bourrage d'alignement v210), donc la ligne de l'autre champ — chaque champ effaçait celui écrit avant lui. Constaté le 2026-11-15 : capture mesurée juste (Cb +38, Cr +12 sur une source violette), sortie verte. Les champs sont maintenant empaquetés ligne par ligne, au pas d'une ligne. Le progressif ne change pas.",
       "⚠ LA CORRECTION EST DANS L'IMAGE `bobi-decklink:0.2.1`, pas dans le script : reconstruire l'image (Réglages → Images, nœuds à carte), puis recréer le conteneur DeckLink. Le script n'a pas changé ; ce numéro existe pour que la correction soit lisible dans le journal du plugin."
