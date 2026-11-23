@@ -1,7 +1,11 @@
 {
-  "version": "0.29.58",
-  "date": "2026-11-21",
+  "version": "0.29.59",
+  "date": "2026-11-23",
   "changes": {
+    "Le chemin de données passe en temps réel (0.29.59)": [
+      "Les binaires de capture et de sortie démarrent en SCHED_FIFO à la priorité que donne l'orchestrateur (rôle « output », 8). Les fils de rappel du SDK DeckLink en héritent ; le superviseur reste en priorité normale.",
+      "La priorité obtenue, lue sur chaque fil des binaires, est publiée sur :8080 (`rt_priority`, `rt_priority_error`) et affichée dans la fiche du conteneur."
+    ],
     "Une source au mauvais format pour une sortie est signalée (0.29.58)": [
       "Une capture 1080i50 câblée sur une sortie réglée en 1080p50 était acceptée sans un mot : la sortie tissait les deux champs en trames progressives et envoyait chacune deux fois. Le port de sortie déclare maintenant que son format est son `mode` (`format_field`). Le câblage le compare à la source, balayage compris, et propose de régler la sortie ou d'insérer un UDC ; en exploitation, un écart né après coup (source qui change, mode modifié) lève une alerte qui nomme les deux formats.",
       "Rien ne change dans le conteneur : pas de redéploiement nécessaire. Demande un orchestrateur qui connaît `format_field` ; un plus ancien l'ignore."

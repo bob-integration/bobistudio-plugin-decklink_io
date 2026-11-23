@@ -877,6 +877,7 @@ class Metriques(BaseHTTPRequestHandler):
                             "frame_index": max(idxs) if idxs else 0,
                             "plugin_version": PLUGIN_VERSION,
                             "inputs": entrees,
+                            **_rt_state(),
                             # LISTE : `metrics._relay_advisory` en relaie plusieurs depuis le
                             # 30/10, et une carte a plusieurs sorties. Absente quand il n'y a
                             # rien à dire — pas une liste vide publiée en permanence.
@@ -1125,9 +1126,66 @@ _enfants = set()
 _verrou_enfants = threading.Lock()
 
 
+# ── Real-time priority of the data path (2026-11-23) ─────────────────────────────────────
+# The deadline is held by the DeckLink SDK callback threads inside decklink_rx / decklink_tx,
+# which create no thread of their own. A thread inherits its creator's policy, so the binary is
+# put in SCHED_FIFO between fork and exec: every SDK thread then starts at the number the
+# orchestrator gave (role "output"). This supervisor stays at normal priority. The probe and
+# profile tools (subprocess.run) do not go through _lancer and stay normal too.
+try:
+    RT_PRIORITY = max(0, min(99, int(CONFIG.get("rt_priority") or 0)))
+except (TypeError, ValueError):
+    RT_PRIORITY = 0
+
+
+def _rt_enfant():
+    """preexec_fn: runs in the child before exec. One syscall, no lock, no allocation; a refusal
+    leaves the child normal and is seen by _rt_state, which reads what each thread really got."""
+    try:
+        os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(RT_PRIORITY))
+    except OSError:
+        pass
+
+
+def _rt_fils(pid):
+    """(policy, rt_priority) of every thread of a process, read in /proc (fields 41 and 40)."""
+    out = []
+    try:
+        tids = os.listdir("/proc/{{}}/task".format(pid))
+    except OSError:
+        return out
+    for tid in tids:
+        try:
+            with open("/proc/{{}}/task/{{}}/stat".format(pid, tid)) as f:
+                champs = f.read().rsplit(")", 1)[1].split()
+            out.append((int(champs[38]), int(champs[37])))
+        except (OSError, IndexError, ValueError):
+            continue          # thread gone meanwhile
+    return out
+
+
+def _rt_state():
+    """What the binaries' threads OBTAINED, for :8080: the lowest priority over every thread of
+    every running binary (one thread left normal = 0, and it says how many)."""
+    if "rt_priority" not in CONFIG:
+        return {{"rt_priority": 0, "rt_priority_error": "orchestrator too old: no rt_priority"}}
+    if not RT_PRIORITY:
+        return {{"rt_priority": 0, "rt_priority_error": ""}}
+    with _verrou_enfants:
+        pids = [pr.pid for pr in _enfants if pr.poll() is None]
+    fils = [f for pid in pids for f in _rt_fils(pid)]
+    if not fils:
+        return {{"rt_priority": 0, "rt_priority_error": "no connector running"}}
+    normaux = sum(1 for pol, _ in fils if pol != os.SCHED_FIFO)
+    if normaux:
+        return {{"rt_priority": 0, "rt_priority_error":
+                "{{}} of {{}} data path threads not in SCHED_FIFO".format(normaux, len(fils))}}
+    return {{"rt_priority": min(pr for _, pr in fils), "rt_priority_error": ""}}
+
+
 def _lancer(args):
     """Demarre un enfant ET l'enregistre. Tout lancement passe par ici."""
-    proc = subprocess.Popen(args)
+    proc = subprocess.Popen(args, preexec_fn=_rt_enfant if RT_PRIORITY else None)
     with _verrou_enfants:
         _enfants.add(proc)
     return proc
