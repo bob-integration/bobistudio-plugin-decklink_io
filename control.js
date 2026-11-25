@@ -1859,6 +1859,9 @@ window.MXLPlugins.decklink_io = (function () {
   const PLAFOND_INJOIGNABLE_S = 150;
   const PERIODE_ETAT_MS = 10000;        // l'état du conteneur se lit hors du proxy : pas à 2 s
   let injoignableDepuis = 0, etatConteneurLu = 0, piloteManque = false;
+  // null = on ne sait pas (route illisible) : on n'affirme alors rien, ni dans un sens ni dans
+  // l'autre — même règle que l'état du pilote.
+  let capaciteManque = null;
 
   function masquerConteneur() {
     const b = q("bloc-conteneur");
@@ -1936,6 +1939,14 @@ window.MXLPlugins.decklink_io = (function () {
     //   choisi de ne pas lancer ce conteneur parce que le pilote manque (host_driver_gate).
     //   Le dire « ARRÊTÉ, et rien ne le relèvera tout seul » serait deux fois faux : personne
     //   ne l'a arrêté, et quelque chose le relèvera.
+    if ((st === "attente_pilote" || st === "awaiting_driver") && capaciteManque === true) {
+      // « Aucun geste à faire » serait faux : le pilote revenu, le déploiement serait refusé.
+      direConteneur(T("conteneur.attente_capacite",
+        "Ce conteneur n'a pas été lancé : il attend son pilote, et le nœud n'a pas non plus la "
+        + "capacité « decklink ». Le pilote ne suffira pas — sans la capacité, il ne démarrera "
+        + "pas. Les deux gestes sont indiqués ci-dessus."), false);
+      return;
+    }
     if (st === "attente_pilote" || st === "awaiting_driver") {
       // Aucun bouton : le geste utile est d'installer le pilote, et le bandeau rouge juste
       // au-dessus le propose déjà. Un second bouton qui ne ferait que retomber dans la même
@@ -1954,7 +1965,15 @@ window.MXLPlugins.decklink_io = (function () {
         txt += " " + T("conteneur.voulu_demarre", "Il est pourtant censé tourner : il s'est "
                        + "arrêté de lui-même.");
       }
-      if (moi.status_cause) txt += " " + String(moi.status_cause);
+      // La cause du cœur est un CODE : celui de la capacité se dit en clair, les autres restent
+      // tels quels (mieux qu'un silence). Le code est écrit par docker_compute au refus.
+      if (moi.status_cause === "node_without_decklink_capability" || capaciteManque === true) {
+        txt += " " + T("conteneur.cause_capacite", "Cause : le nœud n'a pas la capacité "
+                       + "« decklink » (bandeau ci-dessus), et son déploiement est refusé tant "
+                       + "qu'elle manque.");
+      } else if (moi.status_cause) {
+        txt += " " + String(moi.status_cause);
+      }
       if (piloteManque) {
         txt += " " + T("conteneur.cause_pilote", "La cause est très probablement le pilote "
                        + "absent, signalé ci-dessus : sans lui le binaire de capture ne trouve "
@@ -2123,6 +2142,63 @@ window.MXLPlugins.decklink_io = (function () {
     el.appendChild(a);
   }
 
+  // ★ LA CAPACITÉ AVANT LE PILOTE (2026-11-25, Z8 du testeur). Sans la capacité « decklink »,
+  //   le nœud n'a pas l'image du conteneur et le cœur refuse de le déployer — le pilote, lui,
+  //   peut être parfait. Cette page ne lisait que le pilote, et disait « rien de plus à faire »
+  //   à quelqu'un dont le seul blocage était une case à cocher. Elle lit maintenant la
+  //   déclaration du NŒUD, et le dit en premier. Une route illisible ne prouve rien : bandeau
+  //   retiré, `capaciteManque` à null.
+  async function chargerCapacite(id) {
+    capaciteManque = null;
+    try {
+      const r = await fetch("/api/nodes/" + id + "/capabilities", { credentials: "same-origin" });
+      if (r.ok) {
+        const d = await r.json();
+        const caps = Array.isArray(d && d.capabilities) ? d.capabilities : null;
+        if (caps) capaciteManque = caps.indexOf("decklink") < 0;
+      }
+    } catch (e) { capaciteManque = null; }
+    dessinerCapacite();
+  }
+
+  function dessinerCapacite() {
+    const bloc = q("bloc-capacite");
+    if (!bloc) return;
+    bloc.hidden = capaciteManque !== true;
+    if (capaciteManque !== true) return;
+    const t = q("capacite-titre");
+    if (t) t.textContent = T("capacite.titre", "Ce nœud n'a pas la capacité « decklink »");
+    const quoi = q("capacite-quoi");
+    if (quoi) quoi.textContent = T("capacite.quoi",
+      "C'est elle qui fait construire sur ce nœud l'image des entrées/sorties Blackmagic. Sans "
+      + "elle, le déploiement de ce conteneur est refusé et il ne démarrera pas — même avec le "
+      + "pilote installé et la carte vue sur le bus PCI.");
+    const suite = q("capacite-suite");
+    if (!suite) return;
+    suite.textContent = "";
+    // Étapes en DOM, lien compris : un libellé de catalogue n'entre pas en innerHTML.
+    const etapes = [
+      [T("capacite.etape.ajouter", "Ajouter la capacité « decklink » au nœud :"),
+       "/settings#deploiement/nodes",
+       T("pilote.lien_reglages", "Réglages → Nœuds et matériel → Déploiement → Nœuds")],
+      [T("capacite.etape.image", "Construire l'image bobi-decklink sur ce nœud :"),
+       "/settings#deploiement/build",
+       T("capacite.lien_images", "Réglages → Nœuds et matériel → Déploiement → Build")],
+      [T("capacite.etape.redeployer", "Redéployer ce conteneur."), null, null],
+    ];
+    etapes.forEach(([texte, href, lien]) => {
+      const li = document.createElement("li");
+      li.appendChild(document.createTextNode(texte + (href ? " " : "")));
+      if (href) {
+        const a = document.createElement("a");
+        a.href = href;
+        a.textContent = lien;
+        li.appendChild(a);
+      }
+      suite.appendChild(li);
+    });
+  }
+
   // État du pilote INVÉRIFIABLE (relais en erreur : agent du nœud antérieur à 0.28.0, nœud muet).
   // ★ On ne se tait PAS, et on n'affirme pas non plus. Le bandeau rouge disait « le pilote
   //   manque » : le laisser affirmerait une absence qu'on ne mesure plus. Mais le MASQUER, ce
@@ -2240,7 +2316,11 @@ window.MXLPlugins.decklink_io = (function () {
       };
       etapesPilote(st, f).forEach((e) => {
         const li = document.createElement("li");
-        li.textContent = T("pilote.etape." + e.cle, defauts[e.cle]);
+        li.textContent = (e.cle === "relance" && capaciteManque === true)
+          ? T("pilote.etape.relance_capacite", "Le pilote ne suffira pas : ajouter aussi la "
+              + "capacité « decklink » au nœud (bandeau ci-dessus), sans quoi le conteneur ne "
+              + "démarrera pas.")
+          : T("pilote.etape." + e.cle, defauts[e.cle]);
         if (e.faite) li.className = "dl-faite";
         else if (e.ici) li.className = "dl-ici";
         suite.appendChild(li);
@@ -2253,6 +2333,9 @@ window.MXLPlugins.decklink_io = (function () {
     if (!bloc || !editable()) return;                 // mode public : aucun appel hors proxy
     const id = await monNoeudId();
     if (!id) return;
+    // AVANT le pilote, et indépendamment de lui : un relais de pilote en 502 (agent ancien)
+    // ne doit pas faire taire la capacité, qui se lit dans la base du cœur.
+    await chargerCapacite(id);
     let d = null;
     try {
       const r = await fetch("/api/nodes/" + id + "/host-drivers/blackmagic/state",
@@ -2491,7 +2574,7 @@ window.MXLPlugins.decklink_io = (function () {
     if (minuteurMicro) clearInterval(minuteurMicro);
     minuteurMicro = 0;
     firmwareEnCours = false;
-    injoignableDepuis = 0; etatConteneurLu = 0; piloteManque = false;
+    injoignableDepuis = 0; etatConteneurLu = 0; piloteManque = false; capaciteManque = null;
     minuteur = 0; EL = null; inventaire = null; etat = null;
   }
 

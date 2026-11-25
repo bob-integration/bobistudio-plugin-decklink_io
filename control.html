@@ -1,6 +1,18 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later — console du plugin decklink_io. -->
 <div class="dl-panneau">
 
+  <!-- ── CAPACITÉ « decklink » ABSENTE DU NŒUD ────────────────────────────────────────────
+       ★★ AU-DESSUS DU PILOTE (Z8 du testeur, 2026-11-25). Le nœud n'avait pas la capacité :
+          l'image bobi-decklink n'y avait donc jamais été construite et chaque déploiement était
+          refusé. Cette page, elle, ne parlait que du pilote — « déposez l'archive, rien de plus
+          à faire » — et il s'est battu avec un pilote déjà installé. Le pilote ne suffit pas :
+          sans la capacité, le conteneur ne démarre pas, quoi qu'on installe. -->
+  <section class="dl-capacite alert alert-error dl-pilote" data-dl="bloc-capacite" role="alert" hidden>
+    <h4 class="dl-pilote-titre" data-dl="capacite-titre"></h4>
+    <p class="dl-pilote-quoi" data-dl="capacite-quoi"></p>
+    <ol class="dl-pilote-suite" data-dl="capacite-suite"></ol>
+  </section>
+
   <!-- ── PILOTE ABSENT ───────────────────────────────────────────────────────────────────
        ★★ EN TÊTE DE PAGE, DÉPLIÉ, EN ROUGE (demandé par Cyril le 30/10 après la réinstallation
           de la Z8). Le pilote Desktop Video manquait : les deux Quad 2 étaient bien sur le bus
