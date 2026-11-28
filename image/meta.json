@@ -1,8 +1,11 @@
 {
-  "version": "0.2.1",
-  "date": "2026-11-15",
-  "image_tag": "bobi-decklink:0.2.1",
+  "version": "0.2.2",
+  "date": "2026-11-28",
+  "image_tag": "bobi-decklink:0.2.2",
   "changes": {
+    "rebâtie sur bobi-compute:0.84.1 (0.2.2)": [
+      "Couche fine : elle hérite de la libmxl de sa base, bobi-compute:0.84.1 (libmxl release/v1.1 a45b647 + mxl-fabrics-demo-options)."
+    ],
     "Sortie entrelacée : plus de lignes à zéro (0.2.1)": [
       "En sortie entrelacée (1080i50, 1080i59.94), une ligne sur deux de la trame émise était à zéro : image verte qui suit pourtant la source. Pour poser chaque champ une ligne sur deux, la sortie appelait `bobi_v210_pack10` avec un pas de DEUX lignes ; or cette fonction remet à zéro la fin de chaque pas (bourrage d'alignement v210), donc la ligne de l'autre champ — chaque champ effaçait celui écrit avant lui. Constaté le 2026-11-15 : capture mesurée juste (Cb +38, Cr +12 sur une source violette), sortie verte. Les champs sont maintenant empaquetés ligne par ligne, au pas d'une ligne. Le progressif ne change pas.",
       "Le tag change parce qu'un conteneur n'adopte une image qu'en changeant d'`image_tag` : reconstruire sur les nœuds à carte, puis recréer le conteneur DeckLink."
